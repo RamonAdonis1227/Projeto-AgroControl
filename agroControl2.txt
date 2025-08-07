@@ -1,0 +1,128 @@
+
+import React from 'react'
+import { Calendar, Edit, Trash2, User } from 'lucide-react'
+
+interface AnimalCardProps {
+  animal: any
+  onEdit: (animal: any) => void
+  onDelete: (animal: any) => void
+}
+
+const AnimalCard: React.FC<AnimalCardProps> = ({ animal, onEdit, onDelete }) => {
+  const getIdade = (nascimento: string) => {
+    const hoje = new Date()
+    const dataNascimento = new Date(nascimento)
+    const diffTime = Math.abs(hoje.getTime() - dataNascimento.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays < 30) {
+      return `${diffDays} dias`
+    } else if (diffDays < 365) {
+      const meses = Math.floor(diffDays / 30)
+      return `${meses} ${meses === 1 ? 'mês' : 'meses'}`
+    } else {
+      const anos = Math.floor(diffDays / 365)
+      return `${anos} ${anos === 1 ? 'ano' : 'anos'}`
+    }
+  }
+
+  const getSexoColor = (sexo: string) => {
+    return sexo === 'Macho' ? 'text-blue-600 bg-blue-100' : 'text-pink-600 bg-pink-100'
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+      {/* Foto do animal */}
+      <div className="h-48 bg-gray-200 relative">
+        {animal.foto ? (
+          <img 
+            src={animal.foto} 
+            alt={animal.nome}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.src = 'https://images.pexels.com/photos/422218/pexels-photo-422218.jpeg'
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <User className="w-16 h-16 text-gray-400" />
+          </div>
+        )}
+        
+        {/* Badge do sexo */}
+        <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${getSexoColor(animal.sexo)}`}>
+          {animal.sexo}
+        </div>
+      </div>
+
+      <div className="p-4">
+        {/* Header com nome e brinco */}
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="font-semibold text-lg text-gray-900">{animal.nome}</h3>
+            <p className="text-sm text-gray-500">Brinco: {animal.brinco}</p>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => onEdit(animal)}
+              className="text-blue-600 hover:text-blue-800"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onDelete(animal)}
+              className="text-red-600 hover:text-red-800"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Informações principais */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Raça:</span>
+            <span className="font-medium">{animal.raca}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Idade:</span>
+            <div className="flex items-center space-x-1">
+              <Calendar className="w-4 h-4 text-gray-400" />
+              <span className="font-medium">{getIdade(animal.nascimento)}</span>
+            </div>
+          </div>
+
+          {animal.peso && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">Peso:</span>
+              <span className="font-medium">{animal.peso} kg</span>
+            </div>
+          )}
+
+          {/* Status */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Status:</span>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              animal.status === 'Ativo' 
+                ? 'text-green-600 bg-green-100' 
+                : 'text-gray-600 bg-gray-100'
+            }`}>
+              {animal.status}
+            </span>
+          </div>
+        </div>
+
+        {/* Observações */}
+        {animal.observacoes && (
+          <div className="mt-3 pt-3 border-t">
+            <p className="text-xs text-gray-600 line-clamp-2">{animal.observacoes}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default AnimalCard
